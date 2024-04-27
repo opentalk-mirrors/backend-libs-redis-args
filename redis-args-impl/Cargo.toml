@@ -1,0 +1,34 @@
+# SPDX-FileCopyrightText: OpenTalk GmbH <mail@opentalk.eu>
+#
+# SPDX-License-Identifier: MIT OR Apache-2.0
+
+[package]
+authors.workspace = true
+description = "Derive macro for reading and writing types for redis usage, either through serde or format args - proc-macro implementation"
+documentation = "https://docs.rs/redis-args-impl"
+edition = "2021"
+homepage.workspace = true
+license = "MIT OR Apache-2.0"
+name = "redis-args-impl"
+publish = true
+repository.workspace = true
+version = "0.12.0"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+opentalk-proc-macro-fields-helper = "0.11.0"
+proc-macro2 = "1"
+quote = "1"
+syn = { workspace = true, features = ["extra-traits"] }
+
+[dev-dependencies]
+redis.workspace = true
+redis-args.workspace = true
+serde_json.workspace = true
+serde.workspace = true
+
+[package.metadata.cargo-machete]
+# Used for doctests, apparently cargo-machete doesn't recognize that
+ignored = ["serde"]
