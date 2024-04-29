@@ -1,0 +1,11 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Source: https://git.opentalk.dev/opentalk/backend/libs/redis-args
+Upstream-Name: redis-args
+Upstream-Contact: OpenTalk GmbH <mail@opentalk.eu>
+
+Files:
+ Cargo.lock
+ README.md
+ redis-args-impl/README.md
+Copyright: OpenTalk GmbH <mail@opentalk.eu>
+License: MIT OR Apache-2.0
