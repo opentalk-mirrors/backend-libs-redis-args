@@ -149,5 +149,5 @@ release:cargo_publish:
   rules:
     - if: $CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9-\.]+)?$/
   script:
-    - cargo publish --package redis-args-impl
+    - cargo publish --package redis-args-impl --no-verify
     - cargo publish --package redis-args
