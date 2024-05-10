@@ -7,5 +7,6 @@ Files:
  Cargo.lock
  README.md
  redis-args-impl/README.md
+ renovate.json
 Copyright: OpenTalk GmbH <mail@opentalk.eu>
 License: MIT OR Apache-2.0
