@@ -107,7 +107,7 @@ dependencies = [
 
 [[package]]
 name = "redis-args"
-version = "0.12.0"
+version = "0.13.0"
 dependencies = [
  "redis",
  "redis-args-impl",
@@ -117,7 +117,7 @@ dependencies = [
 
 [[package]]
 name = "redis-args-impl"
-version = "0.12.0"
+version = "0.13.0"
 dependencies = [
  "opentalk-proc-macro-fields-helper",
  "proc-macro2",
