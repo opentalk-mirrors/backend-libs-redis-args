@@ -36,11 +36,11 @@ mod to_redis_args;
 ///
 /// ### Struct with unnamed fields
 ///
-/// ````
+/// ```
 /// # #[macro_use] extern crate redis_args;
 /// # #[macro_use] extern crate serde;
 /// #[derive(ToRedisArgs)]
-/// #[to_redis_args(fmt = "path:to:{}:with:{}")]
+/// #[to_redis_args(fmt = "path:to:{0}:with:{1}")]
 /// struct Example(u32, String);
 /// ````
 ///
