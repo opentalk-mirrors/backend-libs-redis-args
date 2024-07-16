@@ -18,7 +18,7 @@ version = "0.13.0"
 proc-macro = true
 
 [dependencies]
-opentalk-proc-macro-fields-helper = "0.11.0"
+darling = "0.20.9"
 proc-macro2 = "1"
 quote = "1"
 syn = { workspace = true, features = ["extra-traits"] }

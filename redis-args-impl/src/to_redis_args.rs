@@ -2,12 +2,40 @@
 //
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-use opentalk_proc_macro_fields_helper::{get_fields, get_format_macro_call, Fields};
+use darling::{
+    ast::{Fields, Style},
+    util::Override,
+    FromDeriveInput, FromField, FromMeta,
+};
 use proc_macro::TokenStream;
 use proc_macro2::Span;
 use quote::quote;
 
 const ATTRIBUTE_NAME: &str = "to_redis_args";
+
+#[derive(Debug, FromDeriveInput)]
+#[darling(attributes(to_redis_args))]
+struct ToRedisArgsParameters {
+    #[darling(flatten)]
+    conversion: ToRedisArgsConversion,
+    data: darling::ast::Data<darling::util::Ignored, FieldReceiver>,
+    ident: syn::Ident,
+    generics: syn::Generics,
+}
+
+#[derive(Debug, PartialEq, Eq, FromMeta)]
+enum ToRedisArgsConversion {
+    Serde,
+    #[darling(rename = "fmt")]
+    Format(Override<syn::LitStr>),
+    #[darling(rename = "Display")]
+    Display,
+}
+
+#[derive(Debug, FromField)]
+struct FieldReceiver {
+    ident: Option<syn::Ident>,
+}
 
 pub(crate) fn to_redis_args(input: TokenStream) -> TokenStream {
     let ast = syn::parse_macro_input!(input as syn::DeriveInput);
@@ -19,126 +47,37 @@ pub(crate) fn to_redis_args(input: TokenStream) -> TokenStream {
 }
 
 fn try_to_redis_args(ast: syn::DeriveInput) -> Result<TokenStream, syn::Error> {
-    let conversion = get_to_redis_args_conversion(&ast.attrs)?;
+    let parameters = ToRedisArgsParameters::from_derive_input(&ast)?;
 
-    match conversion {
+    match &parameters.conversion {
         ToRedisArgsConversion::Serde => impl_to_redis_args_serde(&ast),
-        ToRedisArgsConversion::DirectFormat => impl_to_redis_args_fmt(&ast, "{}"),
-        ToRedisArgsConversion::Format(fmt) => impl_to_redis_args_fmt(&ast, fmt.as_str()),
+        ToRedisArgsConversion::Format(Override::Explicit(fmt)) => {
+            impl_to_redis_args_fmt(&parameters, &fmt.value())
+        }
+        ToRedisArgsConversion::Format(Override::Inherit) => {
+            impl_to_redis_args_fmt(&parameters, "{0}")
+        }
         ToRedisArgsConversion::Display => impl_to_redis_args_display(&ast),
     }
 }
 
-fn get_to_redis_args_conversion(
-    attrs: &[syn::Attribute],
-) -> Result<ToRedisArgsConversion, syn::Error> {
-    let mut found_attr = None;
-    for attr in attrs {
-        if let Some(segment) = attr.path().segments.iter().next() {
-            if segment.ident == ATTRIBUTE_NAME {
-                if found_attr.is_some() {
-                    return Err(syn::Error::new(
-                        Span::call_site(),
-                        format!("Multiple #[{ATTRIBUTE_NAME}(...)] found",),
-                    ));
-                } else {
-                    found_attr = Some(attr);
-                }
-            }
-        }
-    }
-
-    if let Some(attr) = found_attr {
-        return parse_to_redis_args_attribute_meta(attr.meta.clone());
-    }
-
-    Err(syn::Error::new(
-        Span::call_site(),
-        format!("Attribute #[{ATTRIBUTE_NAME}(...)] missing for #[derive(ToRedisArgs)]"),
-    ))
-}
-
-#[derive(Debug, PartialEq, Eq)]
-enum ToRedisArgsConversion {
-    Serde,
-    DirectFormat,
-    Format(String),
-    Display,
-}
-
-fn parse_to_redis_args_attribute_meta(
-    meta: syn::Meta,
-) -> Result<ToRedisArgsConversion, syn::Error> {
-    fn create_generic_error_message() -> syn::Error {
-        syn::Error::new(Span::call_site(), format!("Attribute #[{ATTRIBUTE_NAME}(...)] requires either `fmt`, `fmt = \"...\"`, `serde`, or `Display`  parameter"))
-    }
-
-    match meta {
-        syn::Meta::List(syn::MetaList {
-            path: _,
-            delimiter,
-            tokens,
-        }) => {
-            if !matches!(delimiter, syn::MacroDelimiter::Paren(_)) {
-                return Err(syn::Error::new(
-                    Span::call_site(),
-                    format!("Attribute #[{ATTRIBUTE_NAME}(...)] must have parentheses: '('"),
-                ));
-            }
-
-            let mut tokens = tokens.into_iter();
-            let conversion = match tokens.next() {
-                Some(proc_macro2::TokenTree::Ident(ident)) if ident == "fmt" => {
-                    ToRedisArgsConversion::DirectFormat
-                }
-                Some(proc_macro2::TokenTree::Ident(ident)) if ident == "serde" => {
-                    ToRedisArgsConversion::Serde
-                }
-                Some(proc_macro2::TokenTree::Ident(ident)) if ident == "Display" => {
-                    ToRedisArgsConversion::Display
-                }
-                _ => return Err(create_generic_error_message()),
-            };
-
-            match tokens.next() {
-                Some(proc_macro2::TokenTree::Punct(punct)) if punct.as_char() == '=' => {
-                    if conversion == ToRedisArgsConversion::Serde {
-                        return Err(syn::Error::new(Span::call_site(),
-                            format!("Attribute #[{ATTRIBUTE_NAME}(serde)] does not allow additional parameters")
-                        ));
-                    }
-
-                    let tokens = proc_macro2::TokenStream::from_iter(tokens);
-                    let s = syn::parse2::<syn::LitStr>(tokens)?;
-                    Ok(ToRedisArgsConversion::Format(s.value()))
-                }
-                Some(_) => Err(syn::Error::new(Span::call_site(), "Unexpected token")),
-                None => Ok(conversion),
-            }
-        }
-        syn::Meta::Path(_) => Err(create_generic_error_message()),
-        syn::Meta::NameValue(_) => Err(syn::Error::new(
-            Span::call_site(),
-            format!("Attribute #[{ATTRIBUTE_NAME}(...)] does not allow assignments inside the parentheses"),
-        )),
-    }
-}
-
-fn impl_to_redis_args_fmt(input: &syn::DeriveInput, fmt: &str) -> Result<TokenStream, syn::Error> {
+fn impl_to_redis_args_fmt(
+    input: &ToRedisArgsParameters,
+    fmt: &str,
+) -> Result<TokenStream, syn::Error> {
     let generics = &input.generics;
     let ident = &input.ident;
     match &input.data {
-        syn::Data::Struct(syn::DataStruct { fields, .. }) => {
-            let fields = get_fields(fields);
-
-            if matches!(fields, Fields::Empty) {
-                return Err(syn::Error::new(
-                    Span::call_site(),
-                    format!("The #[{ATTRIBUTE_NAME}] attribute can only be attached to structs with fields."),
-                ));
-            }
-
-            let format_macro_call = get_format_macro_call(ATTRIBUTE_NAME, fmt, &fields)?;
+        darling::ast::Data::Struct(Fields {
+            style: Style::Unit, ..
+        }) => Err(syn::Error::new(
+            Span::call_site(),
+            format!(
+                "The #[{ATTRIBUTE_NAME}] attribute can only be attached to structs with fields."
+            ),
+        )),
+        darling::ast::Data::Struct(Fields { fields, .. }) => {
+            let format_macro_call = get_named_format_macro_call(fmt, fields);
 
             let expanded = quote! {
                 impl #generics ::redis_args::__exports::redis::ToRedisArgs for #ident #generics {
@@ -152,7 +91,7 @@ fn impl_to_redis_args_fmt(input: &syn::DeriveInput, fmt: &str) -> Result<TokenSt
             };
             Ok(TokenStream::from(expanded))
         }
-        syn::Data::Enum(_) | syn::Data::Union(_) => Err(syn::Error::new(
+        darling::ast::Data::Enum(_) => Err(syn::Error::new(
             Span::call_site(),
             format!("#[{ATTRIBUTE_NAME}(fmt)] can only be used with structs"),
         )),
@@ -192,4 +131,33 @@ fn impl_to_redis_args_display(input: &syn::DeriveInput) -> Result<TokenStream, s
         }
     };
     Ok(TokenStream::from(expanded))
+}
+
+/// Build the `format` macro call for named struct fields.
+///
+/// This function will check which fields are used in the format string `fmt` and add these fields to the format macro call.
+fn get_named_format_macro_call(fmt: &str, fields: &[FieldReceiver]) -> proc_macro2::TokenStream {
+    let field_names: Option<Vec<_>> = fields.iter().map(|field| field.ident.as_ref()).collect();
+
+    let field_args: Vec<proc_macro2::TokenStream> = if let Some(field_names) = field_names {
+        // named fields
+        field_names
+            .iter()
+            .filter(|field_ident| fmt.contains(&format!("{{{field_ident}}}")))
+            .map(|field_ident| quote! {#field_ident=self.#field_ident})
+            .collect()
+    } else {
+        // tuple structs
+        fields
+            .iter()
+            .enumerate()
+            .map(|(i, _)| {
+                let i = syn::Index::from(i);
+                quote! {self.#i}
+            })
+            .collect()
+    };
+    quote! {
+        format!(#fmt, #(#field_args),*)
+    }
 }
