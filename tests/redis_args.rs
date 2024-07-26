@@ -135,7 +135,7 @@ fn from_redis_value_from_str() {
         }
     }
 
-    let redis_address = redis::Value::Data("42:baker_street".as_bytes().to_owned());
+    let redis_address = redis::Value::BulkString("42:baker_street".as_bytes().to_owned());
     let address = Address::from_redis_value(&redis_address).unwrap();
     assert_eq!(
         address,

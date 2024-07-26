@@ -46,7 +46,7 @@ fn impl_from_redis_value_serde(input: &syn::DeriveInput) -> Result<TokenStream, 
         impl #generics ::redis_args::__exports::redis::FromRedisValue for #ident #generics {
             fn from_redis_value(v: &::redis_args::__exports::redis::Value) -> ::redis_args::__exports::redis::RedisResult<Self> {
                 match *v {
-                    ::redis_args::__exports::redis::Value::Data(ref bytes) => ::redis_args::__exports::serde_json::from_slice(bytes).map_err(|_| {
+                    ::redis_args::__exports::redis::Value::BulkString(ref bytes) => ::redis_args::__exports::serde_json::from_slice(bytes).map_err(|_| {
                         ::redis_args::__exports::redis::RedisError::from(
                             (::redis_args::__exports::redis::ErrorKind::TypeError, "invalid data content")
                         )
@@ -71,7 +71,7 @@ fn impl_from_redis_value_from_str(input: &syn::DeriveInput) -> Result<TokenStrea
         impl #generics ::redis_args::__exports::redis::FromRedisValue for #ident #generics {
             fn from_redis_value(v: &::redis_args::__exports::redis::Value) -> ::redis_args::__exports::redis::RedisResult<Self> {
                 match *v {
-                    ::redis_args::__exports::redis::Value::Data(ref bytes) => {
+                    ::redis_args::__exports::redis::Value::BulkString(ref bytes) => {
                         let s = std::str::from_utf8(bytes).map_err(|_| {
                             ::redis_args::__exports::redis::RedisError::from(
                                 (::redis_args::__exports::redis::ErrorKind::TypeError, "string is not utf8")
