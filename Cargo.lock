@@ -168,9 +168,9 @@ dependencies = [
 
 [[package]]
 name = "redis"
-version = "0.27.0"
+version = "0.27.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6408b7e62e108fa36b8e44cffa98ae36570cf32cbc996cc3af1f5ecde8782c37"
+checksum = "a7e86f5670bd8b028edfb240f0616cad620705b31ec389d55e4f3da2c38dcd48"
 dependencies = [
  "arc-swap",
  "combine",
@@ -301,9 +301,9 @@ checksum = "08f95100a766bf4f8f28f90d77e0a5461bbdb219042e7679bebe79004fed8d75"
 
 [[package]]
 name = "unicode-ident"
-version = "1.0.12"
+version = "1.0.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3354b9ac3fae1ff6755cb6db53683adb661634f67557942dea4facebec0fee4b"
+checksum = "e91b56cd4cadaeb79bbf1a5645f6b4f8dc5bde8834ad5894a8db35fda9efa1fe"
 
 [[package]]
 name = "unicode-normalization"
