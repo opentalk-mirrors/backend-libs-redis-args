@@ -50,9 +50,8 @@ lint:dependency_check:
 
 lint:unnecessary_dependencies:
   stage: lint
+  <<: *default_job_condition
   needs: []
-  rules:
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
   before_script: if ! cargo machete --version; then cargo install cargo-machete; fi
   script: cargo machete --with-metadata
 
