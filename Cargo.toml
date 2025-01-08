@@ -12,7 +12,7 @@ homepage = "https://opentalk.eu/"
 repository = "https://gitlab.opencode.de/opentalk/libs/redis-args"
 
 [workspace.dependencies]
-redis = "0.27"
+redis = "0.28"
 redis-args = { path = ".", version = "0.17.0" }
 redis-args-impl = { path = "redis-args-impl", version = "0.17.0" }
 serde = "1"
