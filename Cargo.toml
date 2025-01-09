@@ -10,11 +10,12 @@ resolver = "2"
 authors = ["OpenTalk GmbH <mail@opentalk.eu>"]
 homepage = "https://opentalk.eu/"
 repository = "https://gitlab.opencode.de/opentalk/libs/redis-args"
+version = "0.18.0"
 
 [workspace.dependencies]
 redis = "0.28"
-redis-args = { path = ".", version = "0.17.0" }
-redis-args-impl = { path = "redis-args-impl", version = "0.17.0" }
+redis-args = { path = ".", version = "0.18.0" }
+redis-args-impl = { path = "redis-args-impl", version = "0.18.0" }
 serde = "1"
 serde_json = "1"
 syn = "2"
@@ -29,7 +30,7 @@ license = "MIT OR Apache-2.0"
 name = "redis-args"
 publish = true
 repository.workspace = true
-version = "0.17.0"
+version.workspace = true
 
 [dependencies]
 redis-args-impl.workspace = true
