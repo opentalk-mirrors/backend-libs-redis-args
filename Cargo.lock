@@ -331,7 +331,7 @@ dependencies = [
 
 [[package]]
 name = "redis-args"
-version = "0.19.0-alpha"
+version = "0.19.0"
 dependencies = [
  "redis",
  "redis-args-impl",
@@ -341,7 +341,7 @@ dependencies = [
 
 [[package]]
 name = "redis-args-impl"
-version = "0.19.0-alpha"
+version = "0.19.0"
 dependencies = [
  "darling",
  "proc-macro2",
