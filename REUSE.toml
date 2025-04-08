@@ -1,0 +1,10 @@
+version = 1
+SPDX-PackageName = "redis-args"
+SPDX-PackageSupplier = "OpenTalk GmbH <mail@opentalk.eu>"
+SPDX-PackageDownloadLocation = "https://git.opentalk.dev/opentalk/backend/libs/redis-args"
+
+[[annotations]]
+path = ["Cargo.lock", "README.md", "redis-args-impl/README.md", "renovate.json"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "OpenTalk GmbH <mail@opentalk.eu>"
+SPDX-License-Identifier = "MIT OR Apache-2.0"
