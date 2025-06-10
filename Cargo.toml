@@ -13,7 +13,7 @@ repository = "https://gitlab.opencode.de/opentalk/libs/redis-args"
 version = "0.20.0"
 
 [workspace.dependencies]
-redis = "0.31"
+redis = "0.32"
 redis-args = { path = ".", version = "0.20.0" }
 redis-args-impl = { path = "redis-args-impl", version = "0.20.0" }
 serde = "1"
