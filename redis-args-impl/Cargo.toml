@@ -18,7 +18,7 @@ version.workspace = true
 proc-macro = true
 
 [dependencies]
-darling = "0.20.9"
+darling = "0.21.0"
 proc-macro2 = "1"
 quote = "1"
 syn = { workspace = true, features = ["extra-traits"] }
