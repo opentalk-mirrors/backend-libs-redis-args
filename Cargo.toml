@@ -4,7 +4,7 @@
 
 [workspace]
 members = ["redis-args-impl"]
-resolver = "2"
+resolver = "3"
 
 [workspace.package]
 authors = ["OpenTalk GmbH <mail@opentalk.eu>"]
@@ -24,7 +24,7 @@ syn = "2"
 authors.workspace = true
 description = "Derive macro for reading and writing types for redis usage, either through serde or format args"
 documentation = "https://docs.rs/redis-args"
-edition = "2021"
+edition = "2024"
 homepage.workspace = true
 license = "MIT OR Apache-2.0"
 name = "redis-args"
