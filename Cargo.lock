@@ -316,10 +316,6 @@ dependencies = [
  "darling",
  "proc-macro2",
  "quote",
- "redis",
- "redis-args",
- "serde",
- "serde_json",
  "syn",
 ]
 
