@@ -3,9 +3,9 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 use darling::{
+    FromDeriveInput, FromField, FromMeta,
     ast::{Fields, Style},
     util::Override,
-    FromDeriveInput, FromField, FromMeta,
 };
 use proc_macro::TokenStream;
 use proc_macro2::Span;
