@@ -44,16 +44,16 @@ fn impl_from_redis_value_serde(input: &syn::DeriveInput) -> Result<TokenStream, 
 
     let expanded = quote! {
         impl #generics ::redis_args::__exports::redis::FromRedisValue for #ident #generics {
-            fn from_redis_value(v: &::redis_args::__exports::redis::Value) -> ::redis_args::__exports::redis::RedisResult<Self> {
-                match *v {
+            fn from_redis_value(v: ::redis_args::__exports::redis::Value) -> ::core::result::Result::<Self, ::redis_args::__exports::redis::ParsingError> {
+                match v {
                     ::redis_args::__exports::redis::Value::BulkString(ref bytes) => ::redis_args::__exports::serde_json::from_slice(bytes).map_err(|_| {
-                        ::redis_args::__exports::redis::RedisError::from(
-                            (::redis_args::__exports::redis::ErrorKind::TypeError, "invalid data content")
+                        ::redis_args::__exports::redis::ParsingError::from(
+                            "invalid data content"
                         )
                     }),
-                    _ => ::redis_args::__exports::redis::RedisResult::Err(
-                        ::redis_args::__exports::redis::RedisError::from(
-                            (::redis_args::__exports::redis::ErrorKind::TypeError, "invalid data type")
+                    _ => ::core::result::Result::Err(
+                        ::redis_args::__exports::redis::ParsingError::from(
+                            "invalid data type"
                         )
                     ),
                 }
@@ -69,24 +69,24 @@ fn impl_from_redis_value_from_str(input: &syn::DeriveInput) -> Result<TokenStrea
 
     let expanded = quote! {
         impl #generics ::redis_args::__exports::redis::FromRedisValue for #ident #generics {
-            fn from_redis_value(v: &::redis_args::__exports::redis::Value) -> ::redis_args::__exports::redis::RedisResult<Self> {
-                match *v {
+            fn from_redis_value(v: ::redis_args::__exports::redis::Value) -> ::core::result::Result::<Self, ::redis_args::__exports::redis::ParsingError> {
+                match v {
                     ::redis_args::__exports::redis::Value::BulkString(ref bytes) => {
                         let s = std::str::from_utf8(bytes).map_err(|_| {
-                            ::redis_args::__exports::redis::RedisError::from(
-                                (::redis_args::__exports::redis::ErrorKind::TypeError, "string is not utf8")
+                            ::redis_args::__exports::redis::ParsingError::from(
+                                "string is not utf8"
                             )
                         })?;
 
-                        ::std::str::FromStr::from_str(s).map_err(|_| {
-                            ::redis_args::__exports::redis::RedisError::from(
-                                (::redis_args::__exports::redis::ErrorKind::TypeError, "invalid data type")
+                        ::core::str::FromStr::from_str(s).map_err(|_| {
+                            ::redis_args::__exports::redis::ParsingError::from(
+                                "invalid data type"
                             )
                         })
                     },
-                    _ => ::redis_args::__exports::redis::RedisResult::Err(
-                        ::redis_args::__exports::redis::RedisError::from(
-                            (::redis_args::__exports::redis::ErrorKind::TypeError, "invalid data type")
+                    _ => ::core::result::Result::Err(
+                        ::redis_args::__exports::redis::ParsingError::from(
+                            "invalid data type"
                         )
                     ),
                 }
