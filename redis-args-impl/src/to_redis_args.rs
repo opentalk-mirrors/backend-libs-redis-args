@@ -88,6 +88,8 @@ fn impl_to_redis_args_fmt(
                         out.write_arg(#format_macro_call.as_bytes())
                     }
                 }
+
+                impl #generics ::redis_args::__exports::redis::ToSingleRedisArg for #ident #generics {}
             };
             Ok(TokenStream::from(expanded))
         }
@@ -112,6 +114,8 @@ fn impl_to_redis_args_serde(input: &syn::DeriveInput) -> Result<TokenStream, syn
                 out.write_arg(&json_val);
             }
         }
+
+        impl #generics ::redis_args::__exports::redis::ToSingleRedisArg for #ident #generics {}
     };
     Ok(TokenStream::from(expanded))
 }
@@ -129,6 +133,8 @@ fn impl_to_redis_args_display(input: &syn::DeriveInput) -> Result<TokenStream, s
                 out.write_arg_fmt(&self);
             }
         }
+
+        impl #generics ::redis_args::__exports::redis::ToSingleRedisArg for #ident #generics {}
     };
     Ok(TokenStream::from(expanded))
 }
